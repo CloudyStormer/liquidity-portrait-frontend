@@ -1,0 +1,37 @@
+.ad-banner {
+  min-height: 116px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px dashed #c9d8f5;
+  border-radius: 20px;
+  background: #eef5ff;
+}
+
+.ad-banner__label {
+  display: block;
+  color: #2f7bf6;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.ad-banner__text {
+  display: block;
+  margin-top: 8px;
+  color: #8490a6;
+  font-size: 22px;
+}
+
+.ad-banner__tag {
+  width: 56px;
+  height: 38px;
+  border-radius: 999px;
+  background: #dceaff;
+  color: #2f7bf6;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 38px;
+  text-align: center;
+}

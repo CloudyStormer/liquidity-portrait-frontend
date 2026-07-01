@@ -1,0 +1,82 @@
+.upload-card {
+  height: 420px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.upload-card__preview {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #edf1f7;
+}
+
+.upload-card__empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #c9d8f5;
+  border-radius: 20px;
+  background: #f0f6ff;
+}
+
+.upload-card__icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #2f7bf6;
+  color: #fff;
+  font-size: 58px;
+  line-height: 88px;
+  text-align: center;
+}
+
+.upload-card__title {
+  margin-top: 22px;
+  color: #1b2538;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.upload-card__desc {
+  margin-top: 10px;
+  color: #7f8ba3;
+  font-size: 23px;
+}
+
+.panel,
+.flow {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.flow__row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 60px;
+}
+
+.flow__step {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #2f7bf6;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 38px;
+  text-align: center;
+}
+
+.flow__text {
+  color: #4d5a71;
+  font-size: 24px;
+}
+
+.create-button {
+  margin-top: 28px;
+}

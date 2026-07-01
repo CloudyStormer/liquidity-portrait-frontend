@@ -1,0 +1,53 @@
+.orders-topbar {
+  margin-bottom: 18px;
+}
+
+.orders-note {
+  padding: 24px;
+  margin-bottom: 24px;
+  background: #fff9f2;
+  border-color: rgba(255, 125, 0, 0.16);
+}
+
+.orders-note__title {
+  display: block;
+  color: #c76900;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.orders-note__text {
+  display: block;
+  margin-top: 10px;
+  color: #8e6330;
+  font-size: 23px;
+  line-height: 1.55;
+}
+
+.orders-list {
+  margin-top: 8px;
+}
+
+.orders-empty {
+  padding: 48px 28px;
+  text-align: center;
+}
+
+.orders-empty__title {
+  display: block;
+  color: #1b2538;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.orders-empty__desc {
+  display: block;
+  margin-top: 12px;
+  color: #7f8ba3;
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.orders-empty__button {
+  margin-top: 34px;
+}
