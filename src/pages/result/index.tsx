@@ -239,7 +239,7 @@ export default function ResultPage() {
             <Text className='measure measure--bottom'>{size.printWidthMm}mm</Text>
             <View className='single-preview-frame'>
               <View className='photo-preview' style={{ background: background.gradient || background.color, aspectRatio: previewRatio }}>
-                <Image className='photo-preview__image' src={record.imagePath} mode='aspectFill' />
+                <Image className='photo-preview__image' src={record.imagePath || ''} mode='aspectFill' />
                 <View className='preview-watermark'>下载后无水印</View>
               </View>
             </View>
@@ -249,7 +249,7 @@ export default function ResultPage() {
             <View className='layout-paper'>
               {Array.from({ length: Math.min(layout.cols * layout.rows, 6) }).map((_, index) => (
                 <View key={index} className='layout-photo' style={{ background: background.gradient || background.color, aspectRatio: previewRatio }}>
-                  <Image className='layout-photo__image' src={record.imagePath} mode='aspectFill' />
+                  <Image className='layout-photo__image' src={record.imagePath || ''} mode='aspectFill' />
                   {index === Math.min(layout.cols * layout.rows, 6) - 1 && <View className='preview-watermark preview-watermark--layout'>下载后无水印</View>}
                 </View>
               ))}

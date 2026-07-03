@@ -51,6 +51,11 @@ export default function IndexPage() {
 
   return (
     <View className='page index-page fade-in'>
+      <View className='size-panel'>
+        <Text className='section-title'>选择证件照类型</Text>
+        <SizeSelector value={sizeId} onChange={setSizeId} />
+      </View>
+
       <View className='shoot-actions'>
         <Button className='shoot-button shoot-button--ghost' loading={activeAction === 'album'} onClick={() => createRecord('album')}>
           相册选择
@@ -58,11 +63,6 @@ export default function IndexPage() {
         <Button className='shoot-button shoot-button--primary' loading={activeAction === 'camera'} onClick={() => createRecord('camera')}>
           直接拍摄
         </Button>
-      </View>
-
-      <View className='size-panel'>
-        <Text className='section-title'>选择证件照类型</Text>
-        <SizeSelector value={sizeId} onChange={setSizeId} />
       </View>
 
       <View className='spec-card'>

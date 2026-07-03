@@ -1,5 +1,4 @@
-import { View, Text, Image } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import { View, Text } from '@tarojs/components'
 import type { UsageRecord } from '@/types'
 import './RecordCard.css'
 
@@ -7,18 +6,18 @@ interface RecordCardProps {
   record: UsageRecord
 }
 
+function sourceLabel(sourceType?: UsageRecord['sourceType']) {
+  return sourceType === 'camera' ? '直接拍摄' : '相册选择'
+}
+
 export default function RecordCard({ record }: RecordCardProps) {
   return (
-    <View className='record-card' onClick={() => Taro.navigateTo({ url: `/pages/result/index?id=${record.id}` })}>
-      <Image className='record-card__image' src={record.imagePath} mode='aspectFill' />
-      <View className='record-card__body'>
-        <View className='record-card__top'>
-          <Text className='record-card__title'>{record.sizeName}证件照</Text>
-          <Text className='record-card__status'>已生成</Text>
-        </View>
-        <Text className='record-card__time'>{record.createdAt}</Text>
-        <Text className='record-card__hint'>{record.sourceType === 'camera' ? '直接拍摄' : '相册选择'} · 点击继续处理</Text>
+    <View className='record-card'>
+      <View className='record-card__main'>
+        <Text className='record-card__title'>{record.sizeName}</Text>
+        <Text className='record-card__type'>{sourceLabel(record.sourceType)}</Text>
       </View>
+      <Text className='record-card__time'>{record.createdAt}</Text>
     </View>
   )
 }

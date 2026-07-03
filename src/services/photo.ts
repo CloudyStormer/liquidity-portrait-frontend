@@ -1,6 +1,6 @@
 import Taro from '@tarojs/taro'
 import type { UsageRecord } from '@/types'
-import { getAuthHeader, getAuthOpenid, getAuthUserId } from '@/services/auth'
+import { getAuthHeader, getAuthUserId } from '@/services/auth'
 import { API_BASE_URL } from '@/services/api'
 
 export async function syncUsageRecord(record: UsageRecord) {
@@ -8,17 +8,19 @@ export async function syncUsageRecord(record: UsageRecord) {
     return
   }
 
-  const openid = record.openid || getAuthOpenid()
   const userId = record.userId || getAuthUserId()
 
   await Taro.request({
     url: `${API_BASE_URL}/api/photo/usage-records`,
     method: 'POST',
     data: {
-      ...record,
+      id: record.id,
       sourceType: record.sourceType,
       userId,
-      openid
+      sizeId: record.sizeId,
+      sizeName: record.sizeName,
+      createdAt: record.createdAt,
+      status: record.status
     },
     header: {
       'content-type': 'application/json',

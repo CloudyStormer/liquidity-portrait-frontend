@@ -5,7 +5,7 @@ import BottomNav from '@/components/BottomNav'
 import RecordCard from '@/components/RecordCard'
 import { fetchPhotoHistory } from '@/services/api'
 import { getAuthSession } from '@/services/auth'
-import { getUsageHistory, mergeUsageHistory } from '@/services/history'
+import { getUsageHistory } from '@/services/history'
 import type { UsageRecord } from '@/types'
 import './index.css'
 
@@ -22,7 +22,6 @@ export default function OrdersPage() {
     fetchPhotoHistory(session)
       .then((nextRecords) => {
         setRecords(nextRecords)
-        mergeUsageHistory(nextRecords)
       })
       .catch(() => {
         Taro.showToast({ title: '历史接口暂不可用', icon: 'none' })

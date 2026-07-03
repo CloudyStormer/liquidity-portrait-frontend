@@ -29,7 +29,7 @@ export interface UsageRecord {
   sourceType?: 'album' | 'camera'
   sizeId: PhotoSizeId
   sizeName: string
-  imagePath: string
+  imagePath?: string
   originalImagePath?: string
   backgroundId?: string
   backgroundColor?: string
