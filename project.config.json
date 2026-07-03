@@ -2,7 +2,7 @@
   "miniprogramRoot": "dist/",
   "projectname": "liquidity-portrait",
   "description": "Liquidity Portrait Taro mini program",
-  "appid": "touristappid",
+  "appid": "wx254bf007a0921b51",
   "setting": {
     "urlCheck": false,
     "es6": true,

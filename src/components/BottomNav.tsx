@@ -7,9 +7,9 @@ interface BottomNavProps {
 }
 
 const items = [
-  { id: 'home', label: '首页', path: '/pages/index/index', icon: '◎' },
-  { id: 'orders', label: '订单', path: '/pages/orders/index', icon: '▤' },
-  { id: 'profile', label: '我的', path: '/pages/profile/index', icon: '○' }
+  { id: 'home', label: '项目', path: '/pages/index/index', icon: '▦' },
+  { id: 'orders', label: '记录', path: '/pages/orders/index', icon: '▤' },
+  { id: 'profile', label: '我的', path: '/pages/profile/index', icon: '●' }
 ] as const
 
 export default function BottomNav({ current }: BottomNavProps) {

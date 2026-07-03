@@ -1,137 +1,123 @@
 import { useState } from 'react'
-import { View, Text, Image, Button } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import AdBanner from '@/components/AdBanner'
 import BottomNav from '@/components/BottomNav'
 import SizeSelector from '@/components/SizeSelector'
-import { getPhotoSize } from '@/data/sizes'
-import { getAuthOpenid, getAuthSession, getAuthUserId } from '@/services/auth'
-import { addUsageRecord } from '@/services/history'
-import { syncUsageRecord } from '@/services/photo'
-import { formatNow } from '@/utils/time'
+import { BACKGROUND_OPTIONS, getPhotoSize } from '@/data/sizes'
+import { requireLoggedIn } from '@/services/auth'
+import { createPhotoRecord } from '@/services/records'
 import type { PhotoSizeId } from '@/types'
 import './index.css'
 
 export default function IndexPage() {
-  const [sizeId, setSizeId] = useState<PhotoSizeId>('one-inch')
-  const [imagePath, setImagePath] = useState('')
+  const [sizeId, setSizeId] = useState<PhotoSizeId>('two-inch')
   const [creating, setCreating] = useState(false)
+  const selectedSize = getPhotoSize(sizeId)
 
-  const pickImage = async () => {
+  const createRecord = async (sourceType: 'album' | 'camera') => {
+    setCreating(true)
     try {
+      await requireLoggedIn('请先使用微信头像和昵称完成登录后继续制作证件照。')
+      if (sourceType === 'camera') {
+        Taro.navigateTo({ url: `/pages/camera/index?sizeId=${sizeId}` })
+        return
+      }
       const res = await Taro.chooseImage({
         count: 1,
-        sizeType: ['compressed'],
-        sourceType: ['album', 'camera']
+        sizeType: ['original'],
+        sourceType: ['album']
       })
-      setImagePath(res.tempFilePaths[0] ?? '')
-    } catch {
-      // User cancelled.
-    }
-  }
+      const imagePath = res.tempFilePaths[0]
+      if (!imagePath) return
 
-  const createPhoto = async () => {
-    const selectedSize = getPhotoSize(sizeId)
-    if (!selectedSize?.available) {
-      Taro.showToast({ title: '该规格暂未开放', icon: 'none' })
-      return
-    }
-    if (!imagePath) {
-      Taro.showToast({ title: '请先上传照片', icon: 'none' })
-      return
-    }
-    if (!getAuthSession()) {
-      Taro.showModal({
-        title: '需要登录',
-        content: '请先完成微信登录，再生成并同步订单记录。',
-        confirmText: '去登录',
-        success: (res) => {
-          if (res.confirm) {
-            Taro.navigateTo({ url: '/pages/profile/index' })
-          }
-        }
-      })
-      return
-    }
-
-    setCreating(true)
-    Taro.showLoading({ title: '生成中' })
-    setTimeout(async () => {
-      const record = {
-        id: `photo-${Date.now()}`,
-        userId: getAuthUserId(),
-        openid: getAuthOpenid(),
-        sizeId,
-        sizeName: selectedSize.name,
-        imagePath,
-        createdAt: formatNow(),
-        status: 'completed' as const
-      }
-      addUsageRecord(record)
-      try {
-        await syncUsageRecord(record)
-      } catch {
-        Taro.showToast({ title: '后端同步失败，已保存在本地', icon: 'none' })
-      }
-      Taro.hideLoading()
-      setCreating(false)
+      const record = await createPhotoRecord({ imagePath, sizeId, sourceType })
       Taro.navigateTo({ url: `/pages/result/index?id=${record.id}` })
-    }, 700)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (message && !message.includes('取消')) {
+        Taro.showToast({ title: message, icon: 'none' })
+      }
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
-    <View className='page fade-in'>
-      <View className='topbar'>
-        <View>
-          <Text className='eyebrow'>AI 证件照</Text>
-          <Text className='title'>制作标准证件照</Text>
-          <Text className='subtitle'>目前仅开放 1 寸和 2 寸规格</Text>
+    <View className='page index-page fade-in'>
+      <View className='topbar index-topbar'>
+        <Text className='index-back'>‹</Text>
+        <Text className='index-title'>证件照生成器</Text>
+        <Text className='index-more'>•••</Text>
+      </View>
+
+      <View className='spec-card'>
+        <Text className='spec-card__title'>证件照规格说明</Text>
+        <View className='spec-row'>
+          <Text className='spec-row__label'>规格名称：</Text>
+          <Text className='spec-row__value'>{selectedSize.name}</Text>
         </View>
-        <View className='brand-mark' />
-      </View>
-
-      <AdBanner label='首页广告位' />
-
-      <View className='upload-card card' onClick={pickImage}>
-        {imagePath ? (
-          <Image className='upload-card__preview' src={imagePath} mode='aspectFill' />
-        ) : (
-          <View className='upload-card__empty'>
-            <Text className='upload-card__icon'>+</Text>
-            <Text className='upload-card__title'>上传或拍摄照片</Text>
-            <Text className='upload-card__desc'>建议使用正面半身照，背景清晰</Text>
+        <View className='spec-row'>
+          <Text className='spec-row__label'>打印尺寸：</Text>
+          <Text className='spec-row__value'>{selectedSize.printWidthMm} * {selectedSize.printHeightMm}mm</Text>
+        </View>
+        <View className='spec-row'>
+          <Text className='spec-row__label'>像素尺寸：</Text>
+          <Text className='spec-row__value'>{selectedSize.pixelWidth} * {selectedSize.pixelHeight}px</Text>
+        </View>
+        <View className='spec-row'>
+          <Text className='spec-row__label'>文件大小：</Text>
+          <Text className='spec-row__value'>{selectedSize.fileSizeLabel}</Text>
+        </View>
+        <View className='spec-row'>
+          <Text className='spec-row__label'>分辨率：</Text>
+          <Text className='spec-row__value'>{selectedSize.dpi}dpi</Text>
+        </View>
+        <View className='spec-row spec-row--colors'>
+          <Text className='spec-row__label'>背景色：</Text>
+          <View className='spec-swatches'>
+            {BACKGROUND_OPTIONS.map((item) => (
+              <View
+                key={item.id}
+                className='spec-swatch'
+                style={{
+                  background: item.gradient || item.color,
+                  borderColor: item.borderColor || '#DFE3EB'
+                }}
+              />
+            ))}
           </View>
-        )}
+        </View>
       </View>
 
-      <View className='panel card'>
-        <Text className='section-title'>选择规格</Text>
+      <View className='size-panel'>
+        <Text className='section-title'>选择证件照类型</Text>
         <SizeSelector value={sizeId} onChange={setSizeId} />
       </View>
 
-      <View className='flow card'>
-        <Text className='section-title'>处理内容</Text>
-        <View className='flow__row'>
-          <Text className='flow__step'>1</Text>
-          <Text className='flow__text'>上传正面照片</Text>
+      <View className='advice-card'>
+        <Text className='advice-card__title'>拍照建议</Text>
+        <View className='advice-row'>
+          <Text className='advice-row__num'>1</Text>
+          <Text className='advice-row__text'>表情自然，抬头挺胸，两眼平视前方</Text>
         </View>
-        <View className='flow__row'>
-          <Text className='flow__step'>2</Text>
-          <Text className='flow__text'>选择 1 寸或 2 寸规格</Text>
+        <View className='advice-row'>
+          <Text className='advice-row__num'>2</Text>
+          <Text className='advice-row__text'>找他人协助，用后置摄像头拍摄更佳</Text>
         </View>
-        <View className='flow__row'>
-          <Text className='flow__step'>3</Text>
-          <Text className='flow__text'>生成后自动写入历史记录</Text>
+        <View className='advice-row'>
+          <Text className='advice-row__num'>3</Text>
+          <Text className='advice-row__text'>穿深色衣服，在白色或纯色背景墙前拍摄效果最佳</Text>
         </View>
       </View>
 
-      <View className='danger-note'>
-        请确保上传照片为本人或已获授权素材，生成结果仅供合法用途使用。
+      <View className='shoot-actions'>
+        <Button className='shoot-button shoot-button--ghost' loading={creating} onClick={() => createRecord('album')}>
+          相册选择
+        </Button>
+        <Button className='shoot-button shoot-button--primary' loading={creating} onClick={() => createRecord('camera')}>
+          直接拍摄
+        </Button>
       </View>
-
-      <Button className='primary-button create-button' loading={creating} onClick={createPhoto}>
-        生成证件照
-      </Button>
 
       <BottomNav current='home' />
     </View>

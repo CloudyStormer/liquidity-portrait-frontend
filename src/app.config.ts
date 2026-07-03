@@ -1,20 +1,21 @@
 export default defineAppConfig({
   pages: [
     'pages/index/index',
+    'pages/camera/index',
     'pages/result/index',
     'pages/orders/index',
     'pages/profile/index'
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#F4F7FC',
-    navigationBarTitleText: '证件照助手',
+    navigationBarBackgroundColor: '#FFFFFF',
+    navigationBarTitleText: '证件照生成器',
     navigationBarTextStyle: 'black',
-    backgroundColor: '#F4F7FC'
+    backgroundColor: '#F5F6FA'
   },
   permission: {
     'scope.writePhotosAlbum': {
-      desc: '用于保存处理后的图片到相册'
+      desc: '用于保存无水印证件照到相册'
     }
   }
 })

@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react'
 import Taro, { useLaunch } from '@tarojs/taro'
+import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import './app.css'
 
 const DISCLAIMER_KEY = 'lp_disclaimer_agreed'
@@ -21,7 +22,12 @@ function App({ children }: PropsWithChildren) {
     }
   })
 
-  return children
+  return (
+    <>
+      {children}
+      <WeChatLoginDialog />
+    </>
+  )
 }
 
 export default App

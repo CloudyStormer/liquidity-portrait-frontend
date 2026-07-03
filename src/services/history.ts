@@ -20,3 +20,7 @@ export function addUsageRecord(record: UsageRecord) {
   const records = getUsageHistory()
   Taro.setStorageSync(HISTORY_KEY, [record, ...records])
 }
+
+export function mergeUsageHistory(records: UsageRecord[]) {
+  Taro.setStorageSync(HISTORY_KEY, records)
+}

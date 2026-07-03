@@ -9,18 +9,15 @@ interface RecordCardProps {
 
 export default function RecordCard({ record }: RecordCardProps) {
   return (
-    <View
-      className='record-card'
-      onClick={() => Taro.navigateTo({ url: `/pages/result/index?id=${record.id}` })}
-    >
+    <View className='record-card' onClick={() => Taro.navigateTo({ url: `/pages/result/index?id=${record.id}` })}>
       <Image className='record-card__image' src={record.imagePath} mode='aspectFill' />
       <View className='record-card__body'>
         <View className='record-card__top'>
           <Text className='record-card__title'>{record.sizeName}证件照</Text>
-          <Text className='record-card__status'>已完成</Text>
+          <Text className='record-card__status'>已生成</Text>
         </View>
         <Text className='record-card__time'>{record.createdAt}</Text>
-        <Text className='record-card__hint'>历史使用记录</Text>
+        <Text className='record-card__hint'>{record.sourceType === 'camera' ? '直接拍摄' : '相册选择'} · 点击继续处理</Text>
       </View>
     </View>
   )

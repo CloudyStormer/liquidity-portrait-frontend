@@ -1,50 +1,55 @@
 .size-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .size-card {
+  position: relative;
+  width: calc(50% - 8px);
   min-height: 132px;
-  padding: 22px;
-  border: 2px solid #e2e9f4;
-  border-radius: 18px;
+  padding: 20px;
+  border: 2px solid #edf0f6;
+  border-radius: 8px;
   background: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 .size-card--active {
-  border-color: #2f7bf6;
-  background: #edf4ff;
+  border-color: #6e63ee;
+  box-shadow: 0 8px 24px rgba(110, 99, 238, 0.12);
 }
 
 .size-card--disabled {
-  opacity: 0.42;
-  background: #f1f4f8;
+  background: #f4f5f8;
+  border-color: #e4e7ee;
+  opacity: 0.56;
 }
 
 .size-card__name {
   display: block;
-  color: #1b2538;
+  color: #101828;
   font-size: 30px;
   font-weight: 800;
 }
 
 .size-card__detail {
   display: block;
-  margin-top: 8px;
-  color: #7f8ba3;
+  margin-top: 10px;
+  color: #637083;
+  font-size: 23px;
+}
+
+.size-card__px {
+  display: block;
+  margin-top: 6px;
+  color: #9aa3af;
   font-size: 21px;
 }
 
 .size-card__soon {
-  align-self: flex-start;
-  margin-top: 16px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  color: #778296;
-  background: #e2e7ef;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  color: #8b95a5;
   font-size: 20px;
 }

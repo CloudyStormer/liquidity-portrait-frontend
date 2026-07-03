@@ -1,0 +1,106 @@
+.wechat-login-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 42px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.wechat-login-panel {
+  width: 100%;
+  max-width: 640px;
+  padding: 42px 36px 34px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.wechat-login-title,
+.wechat-login-desc {
+  display: block;
+  text-align: center;
+}
+
+.wechat-login-title {
+  color: #111827;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.wechat-login-desc {
+  margin-top: 14px;
+  color: #667085;
+  font-size: 24px;
+  line-height: 1.5;
+}
+
+.avatar-picker {
+  width: 150px;
+  height: 150px;
+  margin: 34px auto 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f4fb;
+  overflow: hidden;
+}
+
+.avatar-picker--hover {
+  background: #e8eef8;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+}
+
+.avatar-placeholder {
+  color: #6e63ee;
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.nickname-input {
+  height: 88px;
+  padding: 0 24px;
+  border: 1px solid #e4e8f0;
+  border-radius: 12px;
+  color: #111827;
+  background: #f9fafc;
+  font-size: 28px;
+}
+
+.wechat-login-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 18px;
+}
+
+.wechat-login-cancel,
+.wechat-login-confirm {
+  flex: 1;
+  height: 82px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.wechat-login-cancel {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.wechat-login-confirm {
+  color: #fff;
+  background: #6b63ea;
+}

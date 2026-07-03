@@ -16,6 +16,7 @@ export async function syncUsageRecord(record: UsageRecord) {
     method: 'POST',
     data: {
       ...record,
+      sourceType: record.sourceType,
       userId,
       openid
     },

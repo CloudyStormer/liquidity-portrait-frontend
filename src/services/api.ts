@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro'
+import type { AuthSession, UsageRecord } from '@/types'
 
-export const API_BASE_URL = process.env.TARO_APP_API_BASE || 'http://localhost:8787'
+export const API_BASE_URL = 'http://localhost:8787'
 const CLIENT_ID_KEY = 'lp_client_id'
 const USER_CACHE_KEY = 'lp_user_cache'
 
@@ -78,6 +79,72 @@ export async function rewardAd(userId: string, placement: 'quota' | 'download') 
     data: { userId, placement }
   })
   return response.data.usage
+}
+
+export async function updateUserProfile(session: AuthSession, input: { nickname?: string; avatarUrl?: string }) {
+  const response = await Taro.request<{ user: AppUser }>({
+    url: `${API_BASE_URL}/api/users/${session.user.id}/profile`,
+    method: 'PATCH',
+    data: input,
+    header: {
+      Authorization: `Bearer ${session.token}`,
+      'content-type': 'application/json'
+    }
+  })
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw new Error('用户资料更新失败')
+  }
+  return response.data.user
+}
+
+export async function uploadUserAvatar(session: AuthSession, avatarPath: string) {
+  const response = await Taro.uploadFile({
+    url: `${API_BASE_URL}/api/users/${session.user.id}/avatar`,
+    filePath: avatarPath,
+    name: 'file',
+    header: {
+      Authorization: `Bearer ${session.token}`
+    }
+  })
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw new Error(`头像上传失败：${response.statusCode}`)
+  }
+  return JSON.parse(response.data || '{}') as { user: AppUser }
+}
+
+export async function fetchPhotoHistory(userId: string) {
+  const response = await Taro.request<{ records: UsageRecord[] }>({
+    url: `${API_BASE_URL}/api/users/${userId}/history?type=photo`,
+    method: 'GET'
+  })
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw new Error('历史记录接口不可用')
+  }
+  return response.data.records || []
+}
+
+export async function logEvent(input: {
+  event: string
+  userId?: string
+  openid?: string
+  platform?: string
+  meta?: Record<string, unknown>
+}) {
+  try {
+    await Taro.request({
+      url: `${API_BASE_URL}/api/logs`,
+      method: 'POST',
+      data: {
+        platform: Taro.getEnv() === Taro.ENV_TYPE.WEAPP ? 'weapp' : 'h5',
+        ...input
+      },
+      header: {
+        'content-type': 'application/json'
+      }
+    })
+  } catch {
+    // Logging must never block the photo flow.
+  }
 }
 
 export async function processImage(input: {

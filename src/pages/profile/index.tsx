@@ -1,29 +1,24 @@
 import { useState } from 'react'
-import { View, Text, Button, Image } from '@tarojs/components'
+import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import BottomNav from '@/components/BottomNav'
-import {
-  clearAuthSession,
-  ensureWechatSession,
-  getAuthSession,
-  loginWithWechat
-} from '@/services/auth'
+import { clearAuthSession, ensureWechatSession, getAuthSession, requireLoggedIn } from '@/services/auth'
+import { logEvent } from '@/services/api'
 import type { AuthSession } from '@/types'
 import './index.css'
 
 const policyText =
-  '本应用仅在本机保存历史使用记录。上传照片用于生成证件照预览，后续接入服务端处理时应在完成后清理临时文件。请勿上传未获授权的他人照片。'
+  '本应用通过微信登录获取用户标识，用于绑定用户、生成记录、下载记录和必要的安全日志。用户标识仅用于后端识别，不在页面展示。图片仅用于证件照预览、生成和保存。'
 
 export default function ProfilePage() {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [loggingIn, setLoggingIn] = useState(false)
 
   useDidShow(() => {
-    setSession(getAuthSession())
+    const cached = getAuthSession()
+    setSession(cached)
     ensureWechatSession().then((valid) => {
-      if (!valid) {
-        setSession(null)
-      }
+      if (!valid) setSession(null)
     })
   })
 
@@ -31,12 +26,13 @@ export default function ProfilePage() {
     setLoggingIn(true)
     Taro.showLoading({ title: '登录中' })
     try {
-      const nextSession = await loginWithWechat()
+      const nextSession = await requireLoggedIn('请使用微信头像和昵称完成登录。')
       setSession(nextSession)
-      Taro.showToast({ title: '登录成功', icon: 'success' })
     } catch (error) {
       const message = error instanceof Error ? error.message : '登录失败'
-      Taro.showToast({ title: message, icon: 'none' })
+      if (!message.includes('取消')) {
+        Taro.showToast({ title: message, icon: 'none' })
+      }
     } finally {
       Taro.hideLoading()
       setLoggingIn(false)
@@ -46,14 +42,18 @@ export default function ProfilePage() {
   const handleLogout = () => {
     Taro.showModal({
       title: '退出登录',
-      content: '退出后仍可继续制作证件照，历史记录会保留在当前设备。',
+      content: '退出后需要重新获取微信头像和昵称才能继续使用功能。',
       confirmText: '退出',
-      success: (res) => {
-        if (res.confirm) {
-          clearAuthSession()
-          setSession(null)
-          Taro.showToast({ title: '已退出登录', icon: 'none' })
-        }
+      success: async (res) => {
+        if (!res.confirm) return
+        await logEvent({
+          event: 'auth.logout',
+          userId: session?.user.id,
+          openid: session?.user.openid
+        })
+        clearAuthSession()
+        setSession(null)
+        Taro.showToast({ title: '已退出登录', icon: 'none' })
       }
     })
   }
@@ -70,72 +70,63 @@ export default function ProfilePage() {
   const showTerms = () => {
     Taro.showModal({
       title: '用户协议',
-      content: '使用本工具即表示您承诺仅制作本人或已获授权的证件照，产生的使用责任由使用者自行承担。',
+      content: '使用本工具即表示你承诺仅制作本人或已获授权的证件照，下载结果仅用于合法用途。',
       confirmText: '知道了',
       showCancel: false
     })
   }
 
   return (
-    <View className='page fade-in'>
-      <View className='topbar profile-topbar'>
-        <View>
-          <Text className='eyebrow'>本地账户</Text>
-          <Text className='title'>我的</Text>
-          <Text className='subtitle'>数据记录保存在当前设备</Text>
-        </View>
+    <View className='page profile-page fade-in'>
+      <View className='profile-header fixed-header'>
+        <Text className='profile-header__eyebrow'>账户中心</Text>
+        <Text className='profile-header__title'>我的</Text>
       </View>
 
-      <View className='profile-card card'>
-        {session?.user.avatarUrl ? (
-          <Image className='profile-card__avatar-image' src={session.user.avatarUrl} mode='aspectFill' />
-        ) : (
-          <View className='profile-card__avatar'>微</View>
-        )}
-        <View>
-          <Text className='profile-card__name'>{session?.user.nickname || '未登录'}</Text>
-          <Text className='profile-card__desc'>
-            {session ? `微信登录 · ${session.loginAt}` : '登录后可同步会员身份'}
-          </Text>
-          {session?.source === 'local-dev' && (
-            <Text className='profile-card__tip'>当前为本地调试会话，接入后端后会换取真实 OpenID。</Text>
+      <View className='profile-scroll'>
+        <View className='identity-card'>
+          {session?.user.avatarUrl ? (
+            <Image className='identity-card__avatar-image' src={session.user.avatarUrl} mode='aspectFill' />
+          ) : (
+            <View className='identity-card__avatar'>我</View>
+          )}
+          <View className='identity-card__main'>
+            <Text className='identity-card__name'>{session?.user.nickname || '未登录用户'}</Text>
+            <Text className='identity-card__desc'>
+              {session ? `已登录 · ${session.loginAt}` : '登录后缓存微信头像和昵称'}
+            </Text>
+          </View>
+        </View>
+
+        <View className='login-panel'>
+          {session ? (
+            <Button className='profile-button profile-button--ghost' onClick={handleLogout}>
+              退出登录
+            </Button>
+          ) : (
+            <Button className='profile-button profile-button--primary' loading={loggingIn} onClick={handleWechatLogin}>
+              微信登录
+            </Button>
           )}
         </View>
-      </View>
 
-      <View className='login-panel card'>
-        {session ? (
-          <Button className='ghost-button login-panel__button' onClick={handleLogout}>
-            退出登录
-          </Button>
-        ) : (
-          <Button
-            className='primary-button login-panel__button'
-            loading={loggingIn}
-            onClick={handleWechatLogin}
-          >
-            微信登录
-          </Button>
-        )}
-      </View>
-
-      <View className='menu card'>
-        <View className='menu__item' onClick={showPolicy}>
-          <Text className='menu__label'>隐私说明</Text>
-          <Text className='menu__arrow'>›</Text>
+        <View className='menu'>
+          <View className='menu__item' onClick={showPolicy}>
+            <Text className='menu__label'>隐私说明</Text>
+            <Text className='menu__arrow'>›</Text>
+          </View>
+          <View className='menu__item' onClick={showTerms}>
+            <Text className='menu__label'>用户协议</Text>
+            <Text className='menu__arrow'>›</Text>
+          </View>
+          <View className='menu__item'>
+            <Text className='menu__label'>版本信息</Text>
+            <Text className='menu__value'>v1.0.0</Text>
+          </View>
         </View>
-        <View className='menu__item' onClick={showTerms}>
-          <Text className='menu__label'>用户协议</Text>
-          <Text className='menu__arrow'>›</Text>
-        </View>
-        <View className='menu__item'>
-          <Text className='menu__label'>版本信息</Text>
-          <Text className='menu__value'>v1.0.0</Text>
-        </View>
+
+        <Text className='profile-footer'>证件照生成器 · 仅供合法用途</Text>
       </View>
-
-      <Text className='profile-footer'>证件照助手 · 仅供合法用途</Text>
-
       <BottomNav current='profile' />
     </View>
   )
