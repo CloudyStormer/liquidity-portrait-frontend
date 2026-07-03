@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro'
 import type { AuthSession, UsageRecord } from '@/types'
 
-export const API_BASE_URL = 'http://localhost:8787'
+export const API_BASE_URL = 'https://api.hgshouse.com/portrait'
 const CLIENT_ID_KEY = 'lp_client_id'
 const USER_CACHE_KEY = 'lp_user_cache'
 
