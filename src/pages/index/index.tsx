@@ -3,6 +3,7 @@ import { View, Text, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import BottomNav from '@/components/BottomNav'
 import SizeSelector from '@/components/SizeSelector'
+import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { BACKGROUND_OPTIONS, getPhotoSize } from '@/data/sizes'
 import { requireLoggedIn } from '@/services/auth'
 import { createPhotoRecord } from '@/services/records'
@@ -11,17 +12,17 @@ import './index.css'
 
 export default function IndexPage() {
   const [sizeId, setSizeId] = useState<PhotoSizeId>('two-inch')
-  const [creating, setCreating] = useState(false)
+  const [activeAction, setActiveAction] = useState<'album' | 'camera' | null>(null)
   const selectedSize = getPhotoSize(sizeId)
 
   const createRecord = async (sourceType: 'album' | 'camera') => {
-    setCreating(true)
     try {
       await requireLoggedIn('请先使用微信头像和昵称完成登录后继续制作证件照。')
       if (sourceType === 'camera') {
         Taro.navigateTo({ url: `/pages/camera/index?sizeId=${sizeId}` })
         return
       }
+      setActiveAction(sourceType)
       const res = await Taro.chooseImage({
         count: 1,
         sizeType: ['original'],
@@ -38,7 +39,7 @@ export default function IndexPage() {
         Taro.showToast({ title: message, icon: 'none' })
       }
     } finally {
-      setCreating(false)
+      setActiveAction(null)
     }
   }
 
@@ -111,15 +112,16 @@ export default function IndexPage() {
       </View>
 
       <View className='shoot-actions'>
-        <Button className='shoot-button shoot-button--ghost' loading={creating} onClick={() => createRecord('album')}>
+        <Button className='shoot-button shoot-button--ghost' loading={activeAction === 'album'} onClick={() => createRecord('album')}>
           相册选择
         </Button>
-        <Button className='shoot-button shoot-button--primary' loading={creating} onClick={() => createRecord('camera')}>
+        <Button className='shoot-button shoot-button--primary' loading={activeAction === 'camera'} onClick={() => createRecord('camera')}>
           直接拍摄
         </Button>
       </View>
 
       <BottomNav current='home' />
+      <WeChatLoginDialog />
     </View>
   )
 }

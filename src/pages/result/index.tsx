@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { View, Text, Image, Button, Canvas } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { BACKGROUND_OPTIONS, getBackground, getPhotoSize } from '@/data/sizes'
+import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { getAuthOpenid, getAuthUserId, requireLoggedIn } from '@/services/auth'
 import { logEvent, rewardAd } from '@/services/api'
 import { getUsageRecord } from '@/services/history'
@@ -294,6 +295,7 @@ export default function ResultPage() {
 
       <Canvas canvasId={SINGLE_CANVAS_ID} className='hidden-canvas' style={{ width: `${size.pixelWidth}px`, height: `${size.pixelHeight}px` }} />
       <Canvas canvasId={LAYOUT_CANVAS_ID} className='hidden-canvas' style={{ width: `${PRINT_SHEET.width}px`, height: `${PRINT_SHEET.height}px` }} />
+      <WeChatLoginDialog />
     </View>
   )
 }

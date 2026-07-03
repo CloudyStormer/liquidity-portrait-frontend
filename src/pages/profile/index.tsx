@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Image, Text, View } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import BottomNav from '@/components/BottomNav'
+import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { clearAuthSession, ensureWechatSession, getAuthSession, requireLoggedIn } from '@/services/auth'
 import { logEvent } from '@/services/api'
 import type { AuthSession } from '@/types'
@@ -23,8 +24,6 @@ export default function ProfilePage() {
   })
 
   const handleWechatLogin = async () => {
-    setLoggingIn(true)
-    Taro.showLoading({ title: '登录中' })
     try {
       const nextSession = await requireLoggedIn('请使用微信头像和昵称完成登录。')
       setSession(nextSession)
@@ -34,7 +33,6 @@ export default function ProfilePage() {
         Taro.showToast({ title: message, icon: 'none' })
       }
     } finally {
-      Taro.hideLoading()
       setLoggingIn(false)
     }
   }
@@ -128,6 +126,7 @@ export default function ProfilePage() {
         <Text className='profile-footer'>证件照生成器 · 仅供合法用途</Text>
       </View>
       <BottomNav current='profile' />
+      <WeChatLoginDialog />
     </View>
   )
 }
