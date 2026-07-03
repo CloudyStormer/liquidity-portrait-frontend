@@ -197,6 +197,7 @@ export async function logEvent(input: {
 }
 
 export async function processImage(input: {
+  session: AuthSession
   userId: string
   filePath: string
   method: 'screenshot' | 'doodle' | 'selection'
@@ -211,6 +212,9 @@ export async function processImage(input: {
       method: input.method,
       markerDataUrl: input.markerDataUrl ?? '',
       rightsConfirmed: 'true'
+    },
+    header: {
+      Authorization: `Bearer ${input.session.token}`
     }
   })
   return JSON.parse(response.data)
