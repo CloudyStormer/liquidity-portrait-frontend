@@ -19,7 +19,7 @@ export default function OrdersPage() {
     if (!session) return
 
     setLoading(true)
-    fetchPhotoHistory(session.user.id)
+    fetchPhotoHistory(session)
       .then((nextRecords) => {
         setRecords(nextRecords)
         mergeUsageHistory(nextRecords)

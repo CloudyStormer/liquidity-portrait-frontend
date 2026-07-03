@@ -64,10 +64,13 @@ export async function identifyUser(): Promise<IdentifyResponse> {
   return response.data
 }
 
-export async function getUsageSummary(userId: string) {
+export async function getUsageSummary(session: AuthSession) {
   const response = await Taro.request<{ usage: UsageSummary }>({
-    url: `${API_BASE_URL}/api/users/${userId}/usage`,
-    method: 'GET'
+    url: `${API_BASE_URL}/api/users/${session.user.id}/usage`,
+    method: 'GET',
+    header: {
+      Authorization: `Bearer ${session.token}`
+    }
   })
   return response.data.usage
 }
@@ -112,10 +115,56 @@ export async function uploadUserAvatar(session: AuthSession, avatarPath: string)
   return JSON.parse(response.data || '{}') as { user: AppUser }
 }
 
-export async function fetchPhotoHistory(userId: string) {
+export interface PhotoValidationResult {
+  ok: boolean
+  message: string
+  imagePath?: string
+  originalUrl?: string
+  validation?: {
+    issues?: string[]
+    width?: number
+    height?: number
+  }
+}
+
+export async function validatePhoto(input: {
+  session: AuthSession
+  filePath: string
+  sizeId: string
+  sourceType: 'album' | 'camera'
+}) {
+  const response = await Taro.uploadFile({
+    url: `${API_BASE_URL}/api/photo/validate`,
+    filePath: input.filePath,
+    name: 'image',
+    formData: {
+      userId: input.session.user.id,
+      sizeId: input.sizeId,
+      sourceType: input.sourceType
+    },
+    header: {
+      Authorization: `Bearer ${input.session.token}`
+    }
+  })
+  let data: PhotoValidationResult
+  try {
+    data = JSON.parse(response.data || '{}')
+  } catch {
+    throw new Error('照片检测接口返回异常')
+  }
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw new Error(data.message || '照片检测失败')
+  }
+  return data
+}
+
+export async function fetchPhotoHistory(session: AuthSession) {
   const response = await Taro.request<{ records: UsageRecord[] }>({
-    url: `${API_BASE_URL}/api/users/${userId}/history?type=photo`,
-    method: 'GET'
+    url: `${API_BASE_URL}/api/users/${session.user.id}/history?type=photo`,
+    method: 'GET',
+    header: {
+      Authorization: `Bearer ${session.token}`
+    }
   })
   if (response.statusCode < 200 || response.statusCode >= 300) {
     throw new Error('历史记录接口不可用')

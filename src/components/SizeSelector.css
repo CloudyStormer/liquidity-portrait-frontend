@@ -1,13 +1,14 @@
 .size-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  justify-content: space-between;
 }
 
 .size-card {
   position: relative;
-  width: calc(50% - 8px);
+  width: 48%;
   min-height: 132px;
+  margin-bottom: 16px;
   padding: 20px;
   border: 2px solid #edf0f6;
   border-radius: 8px;

@@ -30,6 +30,7 @@ export interface UsageRecord {
   sizeId: PhotoSizeId
   sizeName: string
   imagePath: string
+  originalImagePath?: string
   backgroundId?: string
   backgroundColor?: string
   createdAt: string

@@ -3,7 +3,6 @@
   background: #0f172a;
 }
 
-.camera-header,
 .camera-footer {
   position: fixed;
   left: 0;
@@ -12,35 +11,11 @@
   background: rgba(15, 23, 42, 0.94);
 }
 
-.camera-header {
-  top: 0;
-  height: 118px;
-  padding: 24px 30px 0;
-  display: flex;
-  align-items: center;
-}
-
-.camera-back,
-.camera-placeholder {
-  width: 90px;
-  color: #fff;
-  font-size: 56px;
-  line-height: 72px;
-}
-
-.camera-title {
-  flex: 1;
-  color: #fff;
-  font-size: 34px;
-  font-weight: 800;
-  text-align: center;
-}
-
 .camera-view {
   position: fixed;
   left: 0;
   right: 0;
-  top: 118px;
+  top: 0;
   bottom: 184px;
 }
 

@@ -221,12 +221,6 @@ export default function ResultPage() {
 
   return (
     <View className='result-page fade-in'>
-      <View className='result-topbar'>
-        <Text className='result-back' onClick={() => Taro.navigateBack()}>‹</Text>
-        <Text className='result-title'>选择底色</Text>
-        <Text className='result-more'>•••</Text>
-      </View>
-
       <View className='result-tabs'>
         <View className={`result-tab ${mode === 'single' ? 'result-tab--active' : ''}`} onClick={() => setMode('single')}>
           电子照片
@@ -254,7 +248,7 @@ export default function ResultPage() {
           <View className='layout-preview-card'>
             <View className='layout-paper'>
               {Array.from({ length: Math.min(layout.cols * layout.rows, 6) }).map((_, index) => (
-                <View key={index} className='layout-photo' style={{ background: background.gradient || background.color }}>
+                <View key={index} className='layout-photo' style={{ background: background.gradient || background.color, aspectRatio: previewRatio }}>
                   <Image className='layout-photo__image' src={record.imagePath} mode='aspectFill' />
                   {index === Math.min(layout.cols * layout.rows, 6) - 1 && <View className='preview-watermark preview-watermark--layout'>下载后无水印</View>}
                 </View>

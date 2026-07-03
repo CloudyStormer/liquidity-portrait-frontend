@@ -44,13 +44,7 @@ export default function CameraPage() {
 
   return (
     <View className='camera-page'>
-      <View className='camera-header'>
-        <Text className='camera-back' onClick={() => Taro.navigateBack()}>‹</Text>
-        <Text className='camera-title'>直接拍摄</Text>
-        <Text className='camera-placeholder' />
-      </View>
-
-      <Camera className='camera-view' devicePosition='back' flash='off'>
+      <Camera className='camera-view' devicePosition='front' flash='off'>
         <View className='body-guide'>
           <View className='head-guide' />
           <View className='shoulder-guide' />

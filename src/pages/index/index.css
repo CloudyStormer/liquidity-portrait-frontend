@@ -1,41 +1,7 @@
 .index-page {
-  padding-top: 144px;
+  padding-top: 24px;
   padding-bottom: calc(132px + env(safe-area-inset-bottom));
   background: #fff;
-}
-
-.index-topbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 18;
-  height: 118px;
-  margin: 0;
-  padding: 24px 30px 0;
-  background: #fff;
-  border-bottom: 1px solid #f0f2f6;
-}
-
-.index-back,
-.index-more {
-  width: 88px;
-  color: #111827;
-  font-size: 56px;
-  line-height: 72px;
-}
-
-.index-more {
-  font-size: 34px;
-  text-align: right;
-}
-
-.index-title {
-  flex: 1;
-  color: #0f172a;
-  font-size: 34px;
-  font-weight: 800;
-  text-align: center;
 }
 
 .spec-card,
@@ -147,14 +113,17 @@
 
 .shoot-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 24px;
-  margin: 18px 0 8px;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 4px 0 28px;
 }
 
 .shoot-button {
-  width: 390px;
+  flex: 1;
+  min-width: 0;
+  width: auto;
   height: 88px;
   border-radius: 999px;
   display: flex;

@@ -10,6 +10,10 @@ import { createPhotoRecord } from '@/services/records'
 import type { PhotoSizeId } from '@/types'
 import './index.css'
 
+type ChooseMediaResult = {
+  tempFiles?: Array<{ tempFilePath?: string }>
+}
+
 export default function IndexPage() {
   const [sizeId, setSizeId] = useState<PhotoSizeId>('two-inch')
   const [activeAction, setActiveAction] = useState<'album' | 'camera' | null>(null)
@@ -22,13 +26,15 @@ export default function IndexPage() {
         Taro.navigateTo({ url: `/pages/camera/index?sizeId=${sizeId}` })
         return
       }
+
       setActiveAction(sourceType)
-      const res = await Taro.chooseImage({
+      const res = (await Taro.chooseMedia({
         count: 1,
-        sizeType: ['original'],
-        sourceType: ['album']
-      })
-      const imagePath = res.tempFilePaths[0]
+        mediaType: ['image'],
+        sourceType: ['album'],
+        sizeType: ['original']
+      })) as ChooseMediaResult
+      const imagePath = res.tempFiles?.[0]?.tempFilePath
       if (!imagePath) return
 
       const record = await createPhotoRecord({ imagePath, sizeId, sourceType })
@@ -45,10 +51,18 @@ export default function IndexPage() {
 
   return (
     <View className='page index-page fade-in'>
-      <View className='topbar index-topbar'>
-        <Text className='index-back'>‹</Text>
-        <Text className='index-title'>证件照生成器</Text>
-        <Text className='index-more'>•••</Text>
+      <View className='shoot-actions'>
+        <Button className='shoot-button shoot-button--ghost' loading={activeAction === 'album'} onClick={() => createRecord('album')}>
+          相册选择
+        </Button>
+        <Button className='shoot-button shoot-button--primary' loading={activeAction === 'camera'} onClick={() => createRecord('camera')}>
+          直接拍摄
+        </Button>
+      </View>
+
+      <View className='size-panel'>
+        <Text className='section-title'>选择证件照类型</Text>
+        <SizeSelector value={sizeId} onChange={setSizeId} />
       </View>
 
       <View className='spec-card'>
@@ -90,11 +104,6 @@ export default function IndexPage() {
         </View>
       </View>
 
-      <View className='size-panel'>
-        <Text className='section-title'>选择证件照类型</Text>
-        <SizeSelector value={sizeId} onChange={setSizeId} />
-      </View>
-
       <View className='advice-card'>
         <Text className='advice-card__title'>拍照建议</Text>
         <View className='advice-row'>
@@ -103,21 +112,12 @@ export default function IndexPage() {
         </View>
         <View className='advice-row'>
           <Text className='advice-row__num'>2</Text>
-          <Text className='advice-row__text'>找他人协助，用后置摄像头拍摄更佳</Text>
+          <Text className='advice-row__text'>保持面部清晰，避免强光、阴影和明显遮挡</Text>
         </View>
         <View className='advice-row'>
           <Text className='advice-row__num'>3</Text>
           <Text className='advice-row__text'>穿深色衣服，在白色或纯色背景墙前拍摄效果最佳</Text>
         </View>
-      </View>
-
-      <View className='shoot-actions'>
-        <Button className='shoot-button shoot-button--ghost' loading={activeAction === 'album'} onClick={() => createRecord('album')}>
-          相册选择
-        </Button>
-        <Button className='shoot-button shoot-button--primary' loading={activeAction === 'camera'} onClick={() => createRecord('camera')}>
-          直接拍摄
-        </Button>
       </View>
 
       <BottomNav current='home' />
