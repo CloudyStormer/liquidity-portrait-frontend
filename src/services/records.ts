@@ -13,7 +13,7 @@ export async function createPhotoRecord(input: { imagePath: string; sizeId: Phot
     throw new Error('请先登录后再制作证件照')
   }
   const selectedSize = getPhotoSize(input.sizeId)
-  Taro.showLoading({ title: '检测照片中' })
+  Taro.showLoading({ title: '检测并生成中' })
   let validation
   try {
     validation = await validatePhoto({
