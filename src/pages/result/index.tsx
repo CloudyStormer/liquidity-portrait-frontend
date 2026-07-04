@@ -13,7 +13,7 @@ const SINGLE_CANVAS_ID = 'singlePhotoCanvas'
 const LAYOUT_CANVAS_ID = 'layoutPhotoCanvas'
 const PRINT_SHEET = { width: 1200, height: 1800 }
 
-function drawCover(
+function drawContain(
   ctx: Taro.CanvasContext,
   imagePath: string,
   imageWidth: number,
@@ -23,22 +23,12 @@ function drawCover(
   targetWidth: number,
   targetHeight: number
 ) {
-  const scale = Math.max(targetWidth / imageWidth, targetHeight / imageHeight)
-  const sourceWidth = targetWidth / scale
-  const sourceHeight = targetHeight / scale
-  const sourceX = Math.max(0, (imageWidth - sourceWidth) / 2)
-  const sourceY = Math.max(0, (imageHeight - sourceHeight) / 2)
-  ;(ctx.drawImage as unknown as (...args: unknown[]) => void)(
-    imagePath,
-    sourceX,
-    sourceY,
-    sourceWidth,
-    sourceHeight,
-    targetX,
-    targetY,
-    targetWidth,
-    targetHeight
-  )
+  const scale = Math.min(targetWidth / imageWidth, targetHeight / imageHeight)
+  const drawWidth = imageWidth * scale
+  const drawHeight = imageHeight * scale
+  const drawX = targetX + (targetWidth - drawWidth) / 2
+  const drawY = targetY + (targetHeight - drawHeight) / 2
+  ctx.drawImage(imagePath, drawX, drawY, drawWidth, drawHeight)
 }
 
 function layoutRule(sizeId: string) {
@@ -111,6 +101,26 @@ export default function ResultPage() {
   const size = useMemo(() => getPhotoSize(record?.sizeId), [record?.sizeId])
   const previewRatio = `${size.pixelWidth} / ${size.pixelHeight}`
   const layout = layoutRule(size.id)
+  const layoutItems = useMemo(() => {
+    const totalWidth = layout.cols * size.pixelWidth + (layout.cols - 1) * layout.gap
+    const totalHeight = layout.rows * size.pixelHeight + (layout.rows - 1) * layout.gap
+    const startX = Math.round((PRINT_SHEET.width - totalWidth) / 2)
+    const startY = Math.round((PRINT_SHEET.height - totalHeight) / 2)
+    const items: Array<{ left: string; top: string; width: string; height: string }> = []
+    for (let row = 0; row < layout.rows; row += 1) {
+      for (let col = 0; col < layout.cols; col += 1) {
+        const x = startX + col * (size.pixelWidth + layout.gap)
+        const y = startY + row * (size.pixelHeight + layout.gap)
+        items.push({
+          left: `${(x / PRINT_SHEET.width) * 100}%`,
+          top: `${(y / PRINT_SHEET.height) * 100}%`,
+          width: `${(size.pixelWidth / PRINT_SHEET.width) * 100}%`,
+          height: `${(size.pixelHeight / PRINT_SHEET.height) * 100}%`
+        })
+      }
+    }
+    return items
+  }, [layout.cols, layout.gap, layout.rows, size.pixelHeight, size.pixelWidth])
 
   const generateSinglePhoto = async () => {
     if (!record?.imagePath) throw new Error('PHOTO_NOT_FOUND')
@@ -118,7 +128,7 @@ export default function ResultPage() {
     const ctx = Taro.createCanvasContext(SINGLE_CANVAS_ID)
     ctx.setFillStyle(background.color)
     ctx.fillRect(0, 0, size.pixelWidth, size.pixelHeight)
-    drawCover(ctx, imageInfo.path, imageInfo.width, imageInfo.height, 0, 0, size.pixelWidth, size.pixelHeight)
+    drawContain(ctx, imageInfo.path, imageInfo.width, imageInfo.height, 0, 0, size.pixelWidth, size.pixelHeight)
     await new Promise<void>((resolve) => ctx.draw(false, () => resolve()))
     return canvasToFile(SINGLE_CANVAS_ID, size.pixelWidth, size.pixelHeight)
   }
@@ -239,7 +249,7 @@ export default function ResultPage() {
             <Text className='measure measure--bottom'>{size.printWidthMm}mm</Text>
             <View className='single-preview-frame'>
               <View className='photo-preview' style={{ background: background.gradient || background.color, aspectRatio: previewRatio }}>
-                <Image className='photo-preview__image' src={record.imagePath || ''} mode='aspectFill' />
+                <Image className='photo-preview__image' src={record.imagePath || ''} mode='aspectFit' />
                 <View className='preview-watermark'>下载后无水印</View>
               </View>
             </View>
@@ -247,10 +257,10 @@ export default function ResultPage() {
         ) : (
           <View className='layout-preview-card'>
             <View className='layout-paper'>
-              {Array.from({ length: Math.min(layout.cols * layout.rows, 6) }).map((_, index) => (
-                <View key={index} className='layout-photo' style={{ background: background.gradient || background.color, aspectRatio: previewRatio }}>
-                  <Image className='layout-photo__image' src={record.imagePath || ''} mode='aspectFill' />
-                  {index === Math.min(layout.cols * layout.rows, 6) - 1 && <View className='preview-watermark preview-watermark--layout'>下载后无水印</View>}
+              {layoutItems.map((style, index) => (
+                <View key={index} className='layout-photo' style={{ ...style, background: background.gradient || background.color }}>
+                  <Image className='layout-photo__image' src={record.imagePath || ''} mode='aspectFit' />
+                  {index === layoutItems.length - 1 && <View className='preview-watermark preview-watermark--layout'>下载后无水印</View>}
                 </View>
               ))}
               <Text className='layout-tip'>请使用六寸相纸打印</Text>
