@@ -102,7 +102,7 @@ export default function ResultPage() {
   const [saving, setSaving] = useState(false)
 
   useLoad((params) => {
-    const current = getUsageRecord(String(params.id ?? ''))
+    const current = getUsageRecord(String(params.id ?? ''), getAuthUserId())
     setRecord(current)
     setBackground(getBackground(current?.backgroundId))
     Taro.setNavigationBarTitle({ title: '选择底色' })

@@ -127,6 +127,15 @@ export interface PhotoValidationResult {
   }
 }
 
+function parseUploadJson<T>(response: Taro.uploadFile.SuccessCallbackResult, fallbackMessage: string): T {
+  try {
+    return JSON.parse(response.data || '{}') as T
+  } catch {
+    const snippet = String(response.data || '').replace(/\s+/g, ' ').slice(0, 80)
+    throw new Error(`${fallbackMessage}（HTTP ${response.statusCode}${snippet ? `：${snippet}` : ''}）`)
+  }
+}
+
 export async function validatePhoto(input: {
   session: AuthSession
   filePath: string
@@ -146,12 +155,7 @@ export async function validatePhoto(input: {
       Authorization: `Bearer ${input.session.token}`
     }
   })
-  let data: PhotoValidationResult
-  try {
-    data = JSON.parse(response.data || '{}')
-  } catch {
-    throw new Error('照片检测接口返回异常')
-  }
+  const data = parseUploadJson<PhotoValidationResult>(response, '照片检测接口返回异常')
   if (response.statusCode < 200 || response.statusCode >= 300) {
     throw new Error(data.message || '照片检测失败')
   }

@@ -15,8 +15,11 @@ export default function OrdersPage() {
 
   useDidShow(() => {
     const session = getAuthSession()
-    setRecords(getUsageHistory())
-    if (!session) return
+    if (!session) {
+      setRecords([])
+      return
+    }
+    setRecords(getUsageHistory(session.user.id))
 
     setLoading(true)
     fetchPhotoHistory(session)
