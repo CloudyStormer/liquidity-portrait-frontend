@@ -17,6 +17,7 @@ export default function CameraPage() {
   })
 
   const size = getPhotoSize(sizeId)
+  const guideClass = sizeId === 'one-inch' ? 'body-guide--one-inch' : 'body-guide--two-inch'
 
   const takePhoto = async () => {
     setTaking(true)
@@ -45,11 +46,16 @@ export default function CameraPage() {
   return (
     <View className='camera-page'>
       <Camera className='camera-view' devicePosition='front' flash='off'>
-        <View className='body-guide'>
+        <View className={`body-guide ${guideClass}`}>
+          <View className='crop-guide' />
+          <View className='guide-line guide-line--top'>头顶线</View>
+          <View className='guide-line guide-line--eye'>眼睛平视</View>
+          <View className='guide-line guide-line--chin'>下巴参考</View>
           <View className='head-guide' />
           <View className='shoulder-guide' />
+          <View className='shoulder-label'>肩部保持在框内</View>
         </View>
-        <Text className='camera-tip'>保持头肩在框线内，正视镜头</Text>
+        <Text className='camera-tip'>让头顶贴近头顶线，眼睛对齐横线，肩部在框内</Text>
       </Camera>
 
       <View className='camera-footer'>
