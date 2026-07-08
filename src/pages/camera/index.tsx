@@ -8,11 +8,11 @@ import type { PhotoSizeId } from '@/types'
 import './index.css'
 
 export default function CameraPage() {
-  const [sizeId, setSizeId] = useState<PhotoSizeId>('two-inch')
+  const [sizeId, setSizeId] = useState<PhotoSizeId>('one-inch')
   const [taking, setTaking] = useState(false)
 
   useLoad((params) => {
-    const nextSize = String(params.sizeId || 'two-inch') as PhotoSizeId
+    const nextSize = String(params.sizeId || 'one-inch') as PhotoSizeId
     setSizeId(nextSize)
   })
 

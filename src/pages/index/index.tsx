@@ -15,7 +15,7 @@ type ChooseMediaResult = {
 }
 
 export default function IndexPage() {
-  const [sizeId, setSizeId] = useState<PhotoSizeId>('two-inch')
+  const [sizeId, setSizeId] = useState<PhotoSizeId>('one-inch')
   const [activeAction, setActiveAction] = useState<'album' | 'camera' | null>(null)
   const selectedSize = getPhotoSize(sizeId)
 
