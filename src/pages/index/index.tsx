@@ -7,7 +7,7 @@ import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { BACKGROUND_OPTIONS, getPhotoSize } from '@/data/sizes'
 import { requireLoggedIn } from '@/services/auth'
 import { createPhotoRecord } from '@/services/records'
-import { useWechatShare } from '@/services/share'
+import { useWechatShare, withWechatShare } from '@/services/share'
 import type { PhotoSizeId } from '@/types'
 import './index.css'
 
@@ -15,7 +15,7 @@ type ChooseMediaResult = {
   tempFiles?: Array<{ tempFilePath?: string }>
 }
 
-export default function IndexPage() {
+function IndexPage() {
   useWechatShare()
 
   const [sizeId, setSizeId] = useState<PhotoSizeId>('one-inch')
@@ -128,3 +128,5 @@ export default function IndexPage() {
     </View>
   )
 }
+
+export default withWechatShare(IndexPage)

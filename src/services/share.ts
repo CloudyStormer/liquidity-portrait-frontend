@@ -1,23 +1,9 @@
+import { useEffect } from 'react'
 import Taro, { useDidShow, useShareAppMessage, useShareTimeline } from '@tarojs/taro'
 
 const SHARE_TITLE = '\u8bc1\u4ef6\u7167\u751f\u6210\u5668'
 const SHARE_PATH = '/pages/index/index'
-const SHARE_MENU_OPTIONS = {
-  withShareTicket: true,
-  menus: ['shareAppMessage', 'shareTimeline'],
-  showShareItems: ['shareAppMessage', 'shareTimeline', 'wechatFriends', 'wechatMoment']
-}
-
-type WeappShareMenuApi = {
-  showShareMenu?: (option: {
-    withShareTicket?: boolean
-    menus?: string[]
-    showShareItems?: string[]
-    success?: () => void
-    fail?: () => void
-    complete?: () => void
-  }) => void
-}
+const SHARE_QUERY = 'from=share'
 
 type ShareOptions = {
   title?: string
@@ -26,33 +12,84 @@ type ShareOptions = {
   imageUrl?: string
 }
 
-export function useWechatShare(options: ShareOptions = {}) {
+type SharePageComponent<T> = T & {
+  enableShareAppMessage?: boolean
+  enableShareTimeline?: boolean
+  onShareAppMessage?: () => ReturnType<typeof buildShareAppMessage>
+  onShareTimeline?: () => ReturnType<typeof buildShareTimeline>
+}
+
+function normalizePath(path?: string, query = SHARE_QUERY) {
+  const basePath = path || SHARE_PATH
+  if (!query || basePath.includes('?')) return basePath
+  return `${basePath}?${query}`
+}
+
+function buildShareAppMessage(options: ShareOptions = {}) {
   const title = options.title || SHARE_TITLE
-  const path = options.path || SHARE_PATH
-  const query = options.query || ''
-  const imageUrl = options.imageUrl
-
-  useDidShow(() => {
-    if (Taro.getEnv() !== Taro.ENV_TYPE.WEAPP) return
-    const wxApi = (globalThis as typeof globalThis & { wx?: WeappShareMenuApi }).wx
-
-    wxApi?.showShareMenu?.({
-      ...SHARE_MENU_OPTIONS,
-      fail: () => undefined
-    })
-
-    Taro.showShareMenu(SHARE_MENU_OPTIONS as Taro.showShareMenu.Option).catch(() => undefined)
-  })
-
-  useShareAppMessage(() => ({
+  const query = options.query ?? SHARE_QUERY
+  const path = normalizePath(options.path, query)
+  return {
     title,
     path,
-    ...(imageUrl ? { imageUrl } : {})
-  }))
+    ...(options.imageUrl ? { imageUrl: options.imageUrl } : {})
+  }
+}
 
-  useShareTimeline(() => ({
+function buildShareTimeline(options: ShareOptions = {}) {
+  const title = options.title || SHARE_TITLE
+  const query = options.query ?? SHARE_QUERY
+  return {
     title,
     query,
-    ...(imageUrl ? { imageUrl } : {})
-  }))
+    ...(options.imageUrl ? { imageUrl: options.imageUrl } : {})
+  }
+}
+
+export function useWechatShare(options: ShareOptions = {}) {
+  const query = options.query ?? SHARE_QUERY
+
+  useDidShow(() => {
+    if (Taro.getEnv() !== Taro.ENV_TYPE.WEAPP || !Taro.showShareMenu) return
+    Taro.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    } as Parameters<typeof Taro.showShareMenu>[0] & { menus: string[] }).catch(() => {
+      // Sharing availability is controlled by the WeChat runtime/version.
+    })
+  })
+
+  useShareAppMessage(() => buildShareAppMessage(options))
+
+  useShareTimeline(() => buildShareTimeline(options))
+
+  useEffect(() => {
+    const shareApi = Taro as typeof Taro & {
+      onCopyUrl?: typeof Taro.onCopyUrl
+      offCopyUrl?: typeof Taro.offCopyUrl
+    }
+
+    if (typeof shareApi.onCopyUrl !== 'function' || typeof shareApi.offCopyUrl !== 'function') {
+      return undefined
+    }
+
+    const copyUrlHandler = (() => ({
+      query
+    })) as unknown as Parameters<typeof Taro.onCopyUrl>[0]
+
+    shareApi.onCopyUrl(copyUrlHandler)
+
+    return () => {
+      shareApi.offCopyUrl?.(copyUrlHandler)
+    }
+  }, [query])
+}
+
+export function withWechatShare<T>(PageComponent: T, options: ShareOptions = {}) {
+  const sharePage = PageComponent as SharePageComponent<T>
+  sharePage.enableShareAppMessage = true
+  sharePage.enableShareTimeline = true
+  sharePage.onShareAppMessage = () => buildShareAppMessage(options)
+  sharePage.onShareTimeline = () => buildShareTimeline(options)
+  return sharePage
 }

@@ -4,11 +4,11 @@ import Taro, { useLoad } from '@tarojs/taro'
 import { getPhotoSize } from '@/data/sizes'
 import { requireLoggedIn } from '@/services/auth'
 import { createPhotoRecord } from '@/services/records'
-import { useWechatShare } from '@/services/share'
+import { useWechatShare, withWechatShare } from '@/services/share'
 import type { PhotoSizeId } from '@/types'
 import './index.css'
 
-export default function CameraPage() {
+function CameraPage() {
   useWechatShare()
 
   const [sizeId, setSizeId] = useState<PhotoSizeId>('one-inch')
@@ -70,3 +70,5 @@ export default function CameraPage() {
     </View>
   )
 }
+
+export default withWechatShare(CameraPage)
