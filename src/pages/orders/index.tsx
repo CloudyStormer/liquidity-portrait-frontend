@@ -6,10 +6,13 @@ import RecordCard from '@/components/RecordCard'
 import { fetchPhotoHistory } from '@/services/api'
 import { getAuthSession } from '@/services/auth'
 import { getUsageHistory } from '@/services/history'
+import { useWechatShare } from '@/services/share'
 import type { UsageRecord } from '@/types'
 import './index.css'
 
 export default function OrdersPage() {
+  useWechatShare()
+
   const [records, setRecords] = useState<UsageRecord[]>([])
   const [loading, setLoading] = useState(false)
 

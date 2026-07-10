@@ -6,6 +6,7 @@ import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { getAuthOpenid, getAuthUserId, requireLoggedIn } from '@/services/auth'
 import { logEvent, rewardAd } from '@/services/api'
 import { getUsageRecord } from '@/services/history'
+import { useWechatShare } from '@/services/share'
 import type { BackgroundOption, ResultMode, UsageRecord } from '@/types'
 import './index.css'
 
@@ -86,6 +87,8 @@ async function maybeWatchDownloadAd() {
 }
 
 export default function ResultPage() {
+  useWechatShare()
+
   const [record, setRecord] = useState<UsageRecord | undefined>()
   const [mode, setMode] = useState<ResultMode>('single')
   const [background, setBackground] = useState<BackgroundOption>(BACKGROUND_OPTIONS[0])

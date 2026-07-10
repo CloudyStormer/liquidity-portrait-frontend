@@ -5,6 +5,7 @@ import BottomNav from '@/components/BottomNav'
 import WeChatLoginDialog from '@/components/WeChatLoginDialog'
 import { clearAuthSession, ensureWechatSession, getAuthSession, requireLoggedIn } from '@/services/auth'
 import { logEvent } from '@/services/api'
+import { useWechatShare } from '@/services/share'
 import type { AuthSession } from '@/types'
 import './index.css'
 
@@ -12,6 +13,8 @@ const policyText =
   '本应用通过微信登录获取用户标识，用于绑定用户、生成记录、下载记录和必要的安全日志。用户标识仅用于后端识别，不在页面展示。图片仅用于证件照预览、生成和保存。'
 
 export default function ProfilePage() {
+  useWechatShare()
+
   const [session, setSession] = useState<AuthSession | null>(null)
   const [loggingIn, setLoggingIn] = useState(false)
 
